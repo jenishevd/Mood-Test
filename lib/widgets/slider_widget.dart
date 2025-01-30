@@ -100,3 +100,27 @@ class SliderWidget extends StatelessWidget {
     );
   }
 }
+
+Widget buildSlider(String title, double value, String minLabel, String maxLabel,
+    ValueChanged<double> onChanged) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: TextStyle(
+          color: AppColors.textDark,
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      SizedBox(height: 20),
+      SliderWidget(
+        currentSliderValue: value,
+        onChanged: onChanged,
+        StringMin: minLabel,
+        StringMax: maxLabel,
+      ),
+    ],
+  );
+}

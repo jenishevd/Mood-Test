@@ -1,12 +1,14 @@
 import 'dart:async';
+
 import 'package:calendar_test_project/pages/calendar_screen.dart';
 import 'package:calendar_test_project/pages/utils/colors.dart';
 import 'package:calendar_test_project/widgets/ellips_widget.dart';
 import 'package:calendar_test_project/widgets/mood_buttons_widget.dart';
 import 'package:calendar_test_project/widgets/slider_widget.dart';
+import 'package:calendar_test_project/widgets/tapbar_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +19,9 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   String currentDate = '';
+  int? activeIndex; // Активный индекс выбранной эмоции
+  int? selectedMoodIndex; // Индекс выбранной под-кнопки
+  int? selectedParentIndex; // Индекс выбранной родительской кнопки
 
   @override
   void initState() {
@@ -24,7 +29,6 @@ class _MainScreenState extends State<MainScreen> {
     _initializeDate();
   }
 
-  //timer
   Future<void> _initializeDate() async {
     await initializeDateFormatting('ru_RU', null);
     setState(() {
@@ -44,13 +48,34 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  //for sliders
+  final List<List<String>> moodSubmenus = [
+    ['Возбуждение', 'Восторг', 'Игривость', 'Наслаждение'],
+    ['Грусть', 'Депрессия', 'Тревожность'],
+    ['Злость', 'Агрессия', 'Негодование'],
+    ['Тоска', 'Печаль', 'Сожаление'],
+    ['Расслабленность', 'Миролюбие'],
+    ['Энергия', 'Сила', 'Воодушевление'],
+  ];
+
+  String getEmotionText(int index) {
+    const emotions = [
+      'Радость',
+      'Страх',
+      'Злость',
+      'Грусть',
+      'Спокойствие',
+      'Сила'
+    ];
+    return emotions[index];
+  }
+
+  String getEmotionImage(int index) {
+    const images = ['happy', 'fear', 'rage', 'sad', 'calmness', 'power'];
+    return images[index];
+  }
+
   double _currentSliderValue = 40;
   double _currentSliderValue2 = 40;
-
-  //for ellipse
-  bool _tappedHappy = false;
-  bool _tappedFear = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +87,10 @@ class _MainScreenState extends State<MainScreen> {
           title: Text(
             currentDate.isEmpty ? 'Загрузка...' : currentDate,
             style: TextStyle(
-                color: AppColors.textGrey,
-                fontSize: 18,
-                fontWeight: FontWeight.w700),
+              color: AppColors.textGrey,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           centerTitle: true,
           actions: [
@@ -87,203 +113,111 @@ class _MainScreenState extends State<MainScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 5),
+                  TapbarWidget(),
                   SizedBox(height: 20),
-                  SizedBox(height: 30),
                   Text(
                     'Что чувствуешь?',
                     style: TextStyle(
-                        color: AppColors.textDark,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800),
+                      color: AppColors.textDark,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   SizedBox(height: 20),
                   SizedBox(
                     height: 118,
-                    child: ListView(
-                      clipBehavior: Clip.none,
+                    child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      children: <Widget>[
-                        GestureDetector(
-                          child: EllipseWidget(
-                              url: 'assets/pics/happy.png', text: 'Радость'),
+                      itemCount: moodSubmenus.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
                           onTap: () {
-                            _tappedHappy = !_tappedHappy;
+                            setState(() {
+                              activeIndex =
+                                  (activeIndex == index) ? null : index;
+                              selectedMoodIndex = null;
+                              selectedParentIndex = activeIndex;
+                            });
                           },
-                        ),
-                        SizedBox(width: 12),
-                        GestureDetector(
-                          child: EllipseWidget(
-                              url: 'assets/pics/fear.png', text: 'Страх'),
-                          onTap: () {
-                            _tappedFear = !_tappedFear;
-                          },
-                        ),
-                        SizedBox(width: 12),
-                        EllipseWidget(
-                            url: 'assets/pics/rage.png', text: 'Бешенство'),
-                        SizedBox(width: 12),
-                        EllipseWidget(
-                            url: 'assets/pics/sad.png', text: 'Грусть'),
-                        SizedBox(width: 12),
-                        EllipseWidget(
-                            url: 'assets/pics/calmness.png',
-                            text: 'Спокойствие'),
-                        SizedBox(width: 12),
-                        EllipseWidget(
-                            url: 'assets/pics/power.png', text: 'Сила'),
-                      ],
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: EllipseWidget(
+                              url: 'assets/pics/${getEmotionImage(index)}.png',
+                              text: getEmotionText(index),
+                              color: selectedParentIndex == index
+                                  ? Colors.orange
+                                  : Colors.white,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  if (_tappedHappy)
+                  if (activeIndex != null)
                     Column(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MoodButtonsWidget(text: 'Возбуждение'),
-                              MoodButtonsWidget(text: 'Восторг'),
-                              MoodButtonsWidget(text: 'Игривость'),
-                              MoodButtonsWidget(text: 'Наслаждение'),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 120),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MoodButtonsWidget(text: 'Очарование'),
-                              MoodButtonsWidget(text: 'Осознанность'),
-                              MoodButtonsWidget(text: 'Смелость'),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 100),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MoodButtonsWidget(text: 'Удовольствие'),
-                              MoodButtonsWidget(text: 'Чувственность'),
-                              MoodButtonsWidget(text: 'Энергичность'),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            MoodButtonsWidget(text: 'Экстравагантность'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  if (_tappedFear)
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 40),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MoodButtonsWidget(text: 'Грусть'),
-                              MoodButtonsWidget(text: 'Депрессия'),
-                              MoodButtonsWidget(text: 'Игривость'),
-                              MoodButtonsWidget(text: 'Наслаждение'),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 120),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MoodButtonsWidget(text: 'Очарование'),
-                              MoodButtonsWidget(text: 'Осознанность'),
-                              MoodButtonsWidget(text: 'Смелость'),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 100),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MoodButtonsWidget(text: 'Удовольствие'),
-                              MoodButtonsWidget(text: 'Чувственность'),
-                              MoodButtonsWidget(text: 'Энергичность'),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            MoodButtonsWidget(text: 'Экстравагантность'),
-                          ],
+                        SizedBox(height: 20),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: moodSubmenus[activeIndex!]
+                              .map((text) => MoodButtonsWidget(
+                                    text: text,
+                                    isSelected: selectedMoodIndex != null &&
+                                        moodSubmenus[activeIndex!]
+                                                .indexOf(text) ==
+                                            selectedMoodIndex,
+                                    onTap: () {
+                                      setState(() {
+                                        selectedMoodIndex =
+                                            moodSubmenus[activeIndex!]
+                                                .indexOf(text);
+                                      });
+                                    },
+                                  ))
+                              .toList(),
                         ),
                       ],
                     ),
                   SizedBox(height: 36),
-                  Text(
-                    'Уровень стресса',
-                    style: TextStyle(
-                        color: AppColors.textDark,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800),
-                  ),
-                  SizedBox(height: 20),
-                  SliderWidget(
-                    currentSliderValue: _currentSliderValue,
-                    onChanged: (double value) {
-                      setState(() {
-                        _currentSliderValue = value;
-                      });
-                    },
-                    StringMin: 'Низкий',
-                    StringMax: 'Высокий',
-                  ),
+                  buildSlider('Уровень стресса', _currentSliderValue, 'Низкий',
+                      'Высокий', (value) {
+                    setState(() {
+                      _currentSliderValue = value;
+                    });
+                  }),
                   SizedBox(height: 36),
-                  Text(
-                    'Самооценка',
-                    style: TextStyle(
-                        color: AppColors.textDark,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800),
-                  ),
-                  SizedBox(height: 20),
-                  SliderWidget(
-                    currentSliderValue: _currentSliderValue2,
-                    onChanged: (double value) {
-                      setState(() {
-                        _currentSliderValue2 = value;
-                      });
-                    },
-                    StringMin: 'Неуверенность',
-                    StringMax: 'Уверенность',
-                  ),
+                  buildSlider('Самооценка', _currentSliderValue2,
+                      'Неуверенность', 'Уверенность', (value) {
+                    setState(() {
+                      _currentSliderValue2 = value;
+                    });
+                  }),
                   SizedBox(height: 36),
                   Text(
                     'Заметки',
                     style: TextStyle(
-                        color: AppColors.textDark,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800),
+                      color: AppColors.textDark,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   SizedBox(height: 20),
                   Container(
                     decoration: BoxDecoration(boxShadow: [
                       BoxShadow(
-                          color: Color(0xFFB6A1C0).withOpacity(0.1),
-                          offset: Offset(2, 4),
-                          blurRadius: 10.8,
-                          spreadRadius: 0),
+                        color: Color(0xFFB6A1C0).withOpacity(0.1),
+                        offset: Offset(2, 4),
+                        blurRadius: 10.8,
+                        spreadRadius: 0,
+                      ),
                     ], borderRadius: BorderRadius.circular(20.0)),
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: 'Введите заметку',
                         filled: true,
-                        fillColor: Colors.white, // Цвет фона
+                        fillColor: Colors.white,
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.all(10.0),
                       ),

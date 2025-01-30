@@ -1,5 +1,4 @@
 import 'package:calendar_test_project/pages/main_screen.dart';
-import 'package:calendar_test_project/widgets/tap_widget.dart';
 import 'package:flutter/material.dart';
 
 void main() {

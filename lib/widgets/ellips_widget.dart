@@ -2,10 +2,11 @@ import 'package:calendar_test_project/pages/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class EllipseWidget extends StatelessWidget {
+  const EllipseWidget(
+      {super.key, required this.url, required this.text, required this.color});
   final String url;
   final String text;
-
-  const EllipseWidget({super.key, required this.url, required this.text});
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,10 @@ class EllipseWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(50),
+        border: Border.all(
+          color: color,
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
               color: Color(0xFFB6A1C0).withOpacity(0.1),
