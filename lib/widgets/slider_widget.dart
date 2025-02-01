@@ -1,20 +1,27 @@
+import 'package:calendar_test_project/global.dart';
 import 'package:calendar_test_project/pages/utils/colors.dart';
 import 'package:flutter/material.dart';
 
-class SliderWidget extends StatelessWidget {
+class SliderWidget extends StatefulWidget {
   const SliderWidget(
       {super.key,
       required this.currentSliderValue,
       required this.onChanged,
-      required this.StringMin,
-      required this.StringMax});
+      required this.stringMin,
+      required this.stringMax});
 
   final double currentSliderValue;
-  final String StringMin;
-  final String StringMax;
+  final String stringMin;
+  final String stringMax;
 
   final void Function(double)? onChanged;
 
+  @override
+  State<SliderWidget> createState() => _SliderWidgetState();
+}
+
+class _SliderWidgetState extends State<SliderWidget> {
+  bool _isActive = false;
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -66,27 +73,42 @@ class SliderWidget extends StatelessWidget {
                 ],
               ),
             ),
-            Slider(
-              value: currentSliderValue,
-              min: 0,
-              max: 100,
-              divisions: 5,
-              onChanged: onChanged,
-              activeColor: AppColors.primaryOrange,
-              inactiveColor: Colors.grey[100],
-              thumbColor: Colors.white,
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isActive = !_isActive;
+                });
+              },
+              child: AbsorbPointer(
+                absorbing: !_isActive,
+                child: Slider(
+                    value: widget.currentSliderValue,
+                    min: 0,
+                    max: 10,
+                    onChanged: widget.onChanged,
+                    activeColor: _isActive ? Colors.orange : Colors.grey,
+                    inactiveColor: Colors.grey[100],
+                    thumbColor: Colors.white,
+                    onChangeEnd: (value) {
+                      setState(() {
+                        currentSliderValue = value; // Обновляем значение
+                      });
+                      print(widget
+                          .currentSliderValue); // Теперь напечатает новое значение
+                    }),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(StringMin,
+                  Text(widget.stringMin,
                       style: TextStyle(
                           color: Colors.grey,
                           fontSize: 11,
                           fontWeight: FontWeight.w400)),
-                  Text(StringMax,
+                  Text(widget.stringMax,
                       style: TextStyle(
                           color: Colors.grey,
                           fontSize: 11,
@@ -118,8 +140,8 @@ Widget buildSlider(String title, double value, String minLabel, String maxLabel,
       SliderWidget(
         currentSliderValue: value,
         onChanged: onChanged,
-        StringMin: minLabel,
-        StringMax: maxLabel,
+        stringMin: minLabel,
+        stringMax: maxLabel,
       ),
     ],
   );

@@ -11,11 +11,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: Locale('ru', 'RU'), // Устанавливаем русскую локализацию
-      supportedLocales: [Locale('ru', 'RU')],
-      home: Scaffold(
-        body: MainScreen(),
-      ),
+      debugShowCheckedModeBanner: false,
+      home: const MainScreen(),
     );
   }
 }

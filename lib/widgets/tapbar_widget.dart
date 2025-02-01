@@ -2,6 +2,9 @@ import 'package:calendar_test_project/pages/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class TapbarWidget extends StatefulWidget {
+  final Function(int) onTabChanged;
+
+  const TapbarWidget({super.key, required this.onTabChanged});
   @override
   _TapbarWidgetState createState() => _TapbarWidgetState();
 }
@@ -37,6 +40,7 @@ class _TapbarWidgetState extends State<TapbarWidget> {
           setState(() {
             selectedIndex = index;
           });
+          widget.onTabChanged(index);
         },
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),

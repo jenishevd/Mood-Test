@@ -29,55 +29,53 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          leading: IconButton(
-            icon: Icon(
-              Icons.close,
-              color: AppColors.textGrey,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(
+            Icons.close,
+            color: AppColors.textGrey,
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: Text('Сегодня',
-                  style: TextStyle(
-                      color: AppColors.textGrey,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600)),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: Text('Сегодня',
+                style: TextStyle(
+                    color: AppColors.textGrey,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Text(
+              DateFormat('yyyy').format(DateTime.now()),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 8.0,
+                  mainAxisSpacing: 8.0,
+                ),
+                itemCount: 12,
+                itemBuilder: (context, index) {
+                  return MonthCalendar(month: index + 1);
+                },
+              ),
             ),
           ],
-        ),
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Text(
-                DateFormat('yyyy').format(DateTime.now()),
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Expanded(
-                child: GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 8.0,
-                  ),
-                  itemCount: 12,
-                  itemBuilder: (context, index) {
-                    return MonthCalendar(month: index + 1);
-                  },
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -86,7 +84,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
 class MonthCalendar extends StatefulWidget {
   final int month;
-  MonthCalendar({required this.month});
+  const MonthCalendar({required this.month});
 
   @override
   _MonthCalendarState createState() => _MonthCalendarState();
